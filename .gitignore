@@ -11,3 +11,5 @@ Logs/
 *.userprefs
 *.unityproj
 *.DS_Store
+*.log
+/UserSettings
