@@ -1,9 +1,10 @@
 Library/
-Library/*
 Temp/
-Temp/*
 .plastic/
-.plastic/*
+.vscode/
+.vs/
+obj/
+Logs/
 *.sln
 *.csproj
 *.sln
