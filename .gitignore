@@ -1,0 +1,12 @@
+Library/
+Library/*
+Temp/
+Temp/*
+.plastic/
+.plastic/*
+*.sln
+*.csproj
+*.sln
+*.userprefs
+*.unityproj
+*.DS_Store
