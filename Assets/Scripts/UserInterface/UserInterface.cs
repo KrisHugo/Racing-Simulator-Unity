@@ -11,13 +11,13 @@ public class UserInterface : MonoBehaviour
     [SerializeField] private Color reverseColor = Color.red;
     [SerializeField] private Color driveColor = Color.green;
 
-    private CarMovement playerCar;
-    private GearSystem gearSystem;
+    private VehicleController playerCar;
+    // private GearSystem gearSystem;
 
     private void Start()
     {
         playerCar = GameSystem.Instance.GetPlayer();
-        gearSystem = playerCar.GetComponent<GearSystem>();
+        // gearSystem = playerCar.GetComponent<GearSystem>();
     }
 
     private void Update()
@@ -28,10 +28,10 @@ public class UserInterface : MonoBehaviour
 
     private void UpdateVelocityDisplay()
     {
-        string displayText = ((int)playerCar.CurrentSpeed).ToString() + "\n" + ((int)playerCar.EngineRPM).ToString();
+        string displayText = ((int)playerCar.engineSystem.VehicleSpeed).ToString() + "\n" + ((int)playerCar.engineSystem.CurrentRPM).ToString();
         
         velocityText.text = displayText;
-        velocityText.color = (gearSystem.CurrentGearState == GearState.Reverse) ? 
+        velocityText.color = (playerCar.engineSystem.CurrentGearState == GearState.Reverse) ? 
             reverseColor : 
             driveColor;
     }
@@ -39,22 +39,22 @@ public class UserInterface : MonoBehaviour
     private void UpdateGearDisplay()
     {
         string displayText;
-        if(gearSystem.IsShifting){
+        if(playerCar.engineSystem.IsShifting){
             displayText = "N";
         }
         else{
             
             displayText = 
-            gearSystem.CurrentGearState switch
+            playerCar.engineSystem.CurrentGearState switch
             {
                 GearState.Reverse => "R",
                 GearState.Neutral => "N",
-                _ => $"{gearSystem.currentGear}"
+                _ => $"{playerCar.engineSystem.CurrentGear}"
             };
         }
 
         gearText.text = displayText;
-        gearText.color = (gearSystem.CurrentGearState == GearState.Reverse) ? 
+        gearText.color = (playerCar.engineSystem.CurrentGearState == GearState.Reverse) ? 
             reverseColor : 
             driveColor;
     }

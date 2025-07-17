@@ -161,6 +161,7 @@ public class CarMovement : MonoBehaviour
             EngineRPM = Mathf.Lerp(EngineRPM, Mathf.Max(MinRPM, MaxRPM * throttle) + UnityEngine.Random.Range(-50f, 50f), Time.fixedDeltaTime);
         }
         else{
+            // get the average wheel RPM
             wheelRPM = 0;
             foreach (var wheel in wheels)
             {
@@ -170,9 +171,10 @@ public class CarMovement : MonoBehaviour
                 }
                 wheelRPM += wheel.wheelCollider.rpm;
             }
+            wheelRPM = wheelRPM / NumberOfDrivingWheels;
+            // calculate the engine RPM based on wheel RPM, gear ratio and differential ratio
             float curGearRatio = gearSystem.GetCurrentRatio();
-            wheelRPM /= NumberOfDrivingWheels;
-            wheelRPM *= Mathf.Abs(curGearRatio) * differentialRatio;
+            wheelRPM = wheelRPM * Mathf.Abs(curGearRatio) * differentialRatio;
             EngineRPM = Mathf.Lerp(
                 EngineRPM,
                 Mathf.Max(MinRPM-100, wheelRPM),
@@ -220,6 +222,7 @@ public class CarMovement : MonoBehaviour
             }
         }
     }
+
     private void RecoverClutching(){
         clutching = Mathf.Lerp(clutching, 1, Time.fixedDeltaTime * 5.0f);
     }
@@ -258,6 +261,8 @@ public class CarMovement : MonoBehaviour
         {
             rb.drag = 0;
         }
+        Debug.Log("Drag: " + rb.drag + "; Velocity: " + rb.velocity.magnitude);
+        // Debug.Log();
     }
     public void Respawn(Transform respawnPoint)
     {

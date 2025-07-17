@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameSystem : MonoBehaviour
 {
     public static GameSystem Instance{get; private set;}
-    public CarMovement playerCar;
+    public VehicleController playerCar;
     [SerializeField] public Transform respawnPoint;
     void Awake(){
         
@@ -25,7 +25,8 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-    public CarMovement GetPlayer(){
+    public VehicleController GetPlayer()
+    {
         return playerCar;
     }
 }
