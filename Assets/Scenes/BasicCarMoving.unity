@@ -4109,7 +4109,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f33054c55e89e594d89773f0c3e9466d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Anti_Roll_Force: 50
 --- !u!114 &1187462901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4169,6 +4168,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a5bb69a9566a240a82d96812359e51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSpeed: 200
+  gearRatios:
+  - 3.8
+  - 2.3
+  - 1.5
+  - 1.1
+  - 0.9
+  reverseRatio: 3.5
+  differentialRatio: 3.7
+  slipLimit: 0.25
   maxTorque: 2000
   idleRPM: 800
   maxRPM: 7000
@@ -4241,6 +4250,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   engineSystem: {fileID: 0}
   steeringSystem: {fileID: 0}
+  automaticTransmission: 1
   isEngineOn: 1
   isHandbrakeOn: 0
   isBraking: 0
