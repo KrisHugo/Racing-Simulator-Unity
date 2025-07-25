@@ -36,7 +36,7 @@ public class EngineSystem : MonoBehaviour
     public float maxRPM = 7000f;
     public float brakeForce = 3000f;
     // 优化后的扭矩曲线
-    public AnimationCurve torqueCurve = new AnimationCurve(
+    public AnimationCurve torqueCurve = new(
         new Keyframe(0, 0.2f),    // 低转速扭矩
         new Keyframe(0.3f, 0.9f),  // 提高爬坡能力
         new Keyframe(0.6f, 1.0f),  // 峰值扭矩

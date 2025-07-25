@@ -27,7 +27,7 @@ public class PhysicsDebugger : MonoBehaviour
                 wheel.collider.GetGroundHit(out WheelHit hit);
                 float slip = wheelController.GetWheelSlip(wheel);
                 
-                GUIStyle style = new GUIStyle();
+                GUIStyle style = new();
                 style.normal.textColor = slip > wheelController.slipThreshold ? Color.red : Color.green;
                 
                 #if UNITY_EDITOR
@@ -38,7 +38,7 @@ public class PhysicsDebugger : MonoBehaviour
             // 显示摩擦值
             if (showFrictionValues)
             {
-                GUIStyle style = new GUIStyle();
+                GUIStyle style = new();
                 style.normal.textColor = Color.yellow;
                 
                 #if UNITY_EDITOR

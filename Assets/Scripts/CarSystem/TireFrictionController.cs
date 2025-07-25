@@ -36,7 +36,7 @@ public class TireFrictionModel : MonoBehaviour
         // 计算滑移率
         Vector3 localVel = transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity);
         float wheelSpeed = wheel.rpm * 2 * Mathf.PI * wheel.radius / 60;
-        float slipRatio = Mathf.Abs((wheelSpeed - Mathf.Abs(localVel.z))) / Mathf.Max(Mathf.Abs(localVel.z), 0.1f);
+        float slipRatio = Mathf.Abs(wheelSpeed - Mathf.Abs(localVel.z)) / Mathf.Max(Mathf.Abs(localVel.z), 0.1f);
         
         // Pacejka公式计算基础摩擦
         float x = B * slipRatio;

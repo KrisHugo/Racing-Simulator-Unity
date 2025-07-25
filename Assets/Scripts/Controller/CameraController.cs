@@ -23,18 +23,19 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         playerCamera = Camera.main;        
+        followingObjects = GameSystem.Instance.playerCar.transform;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        Vector3 targetPostition = new Vector3();
+        Vector3 targetPostition = new();
         targetPostition = followingObjects.TransformPoint(moveOffset);
         
         playerCamera.transform.position = Vector3.Slerp(playerCamera.transform.position, targetPostition, posSmoothness * Time.fixedDeltaTime);
 
         Vector3 direction = followingObjects.position - playerCamera.transform.position;
-        Quaternion rotation = new Quaternion();
+        Quaternion rotation = new();
         rotation = Quaternion.LookRotation(direction + rotOffset, Vector3.up);
 
         playerCamera.transform.rotation = Quaternion.Slerp(playerCamera.transform.rotation, rotation, rotSmoothness * Time.fixedDeltaTime);
