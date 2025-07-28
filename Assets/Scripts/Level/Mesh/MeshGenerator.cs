@@ -74,7 +74,7 @@ public static class MeshGenerator
 
             }
         }
-        meshData.Finalize();
+        meshData.Finalized();
 
         return meshData;
     }
@@ -189,7 +189,7 @@ public class MeshData
         return Vector3.Cross(sideAB, sideAC).normalized;
     }
 
-    public void Finalize(){
+    public void Finalized(){
         if(useFlatShading){
             FlatShading();
         }
@@ -219,11 +219,13 @@ public class MeshData
 
     public Mesh CreateMesh()
     {
-        Mesh mesh = new();
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uvs;
-        if(useFlatShading)
+        Mesh mesh = new()
+        {
+            vertices = vertices,
+            triangles = triangles,
+            uv = uvs
+        };
+        if (useFlatShading)
         {
             mesh.RecalculateNormals();
         }

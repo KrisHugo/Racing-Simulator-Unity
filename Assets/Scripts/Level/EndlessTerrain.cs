@@ -25,8 +25,8 @@ public class EndlessTerain : MonoBehaviour
     {
         mapGenerator = FindObjectOfType<MapGenerator>();
 
-        maxViewDst = detailLevels[detailLevels.Length - 1].visibleDstThreshold;
-        chunkSize = MapGenerator.MapChunkSize - 1;
+        maxViewDst = detailLevels[^1].visibleDstThreshold;
+        chunkSize = mapGenerator.MapChunkSize - 1;
         chunkVisibleInViewDst = Mathf.RoundToInt(maxViewDst / chunkSize);
 
         terrainChunksVisibleLastUpdated = new List<TerrainChunk>();
@@ -87,7 +87,7 @@ public class EndlessTerain : MonoBehaviour
         MeshCollider meshCollider;
 
         LODInfo[] detailLevels;
-        LODMesh[] lODMeshes;
+        LODMesh[] LODMeshes;
         LODMesh collisionLODMesh;
         MapData mapData;
         bool mapDataReceived;
@@ -112,13 +112,13 @@ public class EndlessTerain : MonoBehaviour
     
             SetVisible(false);
 
-            lODMeshes = new LODMesh[detailLevels.Length];
+            LODMeshes = new LODMesh[detailLevels.Length];
             for (int i = 0; i < detailLevels.Length; i++)
             {
-                lODMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateTerrainChunk);
+                LODMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateTerrainChunk);
                 if (detailLevels[i].useForCollider)
                 {
-                    collisionLODMesh = lODMeshes[i];
+                    collisionLODMesh = LODMeshes[i];
                 }
             }
 
@@ -129,9 +129,6 @@ public class EndlessTerain : MonoBehaviour
         {
             this.mapData = mapData;
             mapDataReceived = true;
-
-            Texture2D texture = TextureGenerator.TextureFromColorMap(mapData.colormap, MapGenerator.MapChunkSize, MapGenerator.MapChunkSize);
-            meshRenderer.material.mainTexture = texture;
 
             UpdateTerrainChunk();
         }
@@ -159,7 +156,7 @@ public class EndlessTerain : MonoBehaviour
                     }
                     if (lodIndex != previousLODIndex)
                     {
-                        LODMesh lodMesh = lODMeshes[lodIndex];
+                        LODMesh lodMesh = LODMeshes[lodIndex];
                         if (lodMesh.hasMesh)
                         {
                             meshFilter.mesh = lodMesh.mesh;

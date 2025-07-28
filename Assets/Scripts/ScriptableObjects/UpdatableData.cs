@@ -7,17 +7,18 @@ public class UpdatableData : ScriptableObject
     public event System.Action OnValueUpdated;
     public bool autoUpdate;
 
+    #if UNITY_EDITOR
     protected virtual void OnValidate()
     {
         if(autoUpdate){
-            NotifyOfUpdatedValues();
+            UnityEditor.EditorApplication.update += NotifyOfUpdatedValues;
         }
     }
 
     public void NotifyOfUpdatedValues(){
-        if(OnValueUpdated != null){
-            OnValueUpdated();
-        }
+        UnityEditor.EditorApplication.update -= NotifyOfUpdatedValues;
+        OnValueUpdated?.Invoke();
     }
+    #endif
 
 }
