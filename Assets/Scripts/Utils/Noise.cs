@@ -18,7 +18,6 @@ public static class Noise
         
         float maxPossibleHeight = 0;
         float amplitude = 1;
-        float frequency = 1;
         for (int i = 0; i < octaves; i++)
         {
             float offsetX = prng.Next(-100000, 100000) + offset.x;
@@ -32,15 +31,15 @@ public static class Noise
 
         scale = Mathf.Max(scale, 0.00001f);
 
-        float halfWidth = mapWidth * 0.5f;
-        float halfHeight = mapHeight * 0.5f;
+        // float halfWidth = mapWidth * 0.5f;
+        // float halfHeight = mapHeight * 0.5f;
 
         float invScale = Mathf.PI / scale; // 预计算倒数避免重复除法
 
         float maxNoiseValue = float.MinValue;
-        float minNoiseValue = float.MaxValue;
+        float minLocalNoiseValue = float.MaxValue;
 
-
+        float frequency;
         for (int x = 0; x < mapWidth; x++)
         {
             for (int y = 0; y < mapHeight; y++)
@@ -51,8 +50,10 @@ public static class Noise
 
                 for (int i = 0; i < octaves; i++)
                 {
-                    float sampleX = (x - halfWidth + octaveOffsets[i].x) * invScale * frequency;
-                    float sampleY = (y - halfHeight + octaveOffsets[i].y) * invScale * frequency;
+                    // float sampleX = (x - halfWidth + octaveOffsets[i].x) * invScale * frequency;
+                    // float sampleY = (y - halfHeight + octaveOffsets[i].y) * invScale * frequency;
+                    float sampleX = (x + octaveOffsets[i].x) * invScale * frequency;
+                    float sampleY = (y + octaveOffsets[i].y) * invScale * frequency;
                     float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
 
                     noiseHeight += perlinValue * amplitude;
@@ -63,23 +64,23 @@ public static class Noise
 
                 // 实时更新极值
                 if (noiseHeight > maxNoiseValue) maxNoiseValue = noiseHeight;
-                if (noiseHeight < minNoiseValue) minNoiseValue = noiseHeight;
+                if (noiseHeight < minLocalNoiseValue) minLocalNoiseValue = noiseHeight;
                 noiseMap[x, y] = noiseHeight;
             }
         }
-        float range = maxNoiseValue - minNoiseValue;
+        float range = maxNoiseValue - minLocalNoiseValue;
         for (int x = 0; x < mapWidth; x++)
         {
             for (int y = 0; y < mapHeight; y++)
             {
                 if (normalizeMode == NormalizeMode.Local)
                 {
-                    noiseMap[x, y] = (noiseMap[x, y] - minNoiseValue) / range;
+                    noiseMap[x, y] = (noiseMap[x, y] - minLocalNoiseValue) / range;
                 }
                 else
                 {
-                    float normalizeHeight = (noiseMap[x, y] + 1) / (2 * maxPossibleHeight / 1.75f);
-                    noiseMap[x, y] = normalizeHeight;
+                    // using maxPossibleHeight to smoothe the edge.
+                    noiseMap[x, y] = (noiseMap[x, y] + 1) / (2 * maxPossibleHeight / 1.75f);
                 }
             }
         }

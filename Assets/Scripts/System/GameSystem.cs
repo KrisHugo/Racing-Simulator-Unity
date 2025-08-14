@@ -5,8 +5,12 @@ using UnityEngine;
 public class GameSystem : MonoBehaviour
 {
     public static GameSystem Instance{get; private set;}
-    public VehicleController playerCar;
+    // public VehicleController playerCar;
+    public AxlePhysics playerCar;
     [SerializeField] public Transform respawnPoint;
+    public float airDragCoefficient = 0.3f;
+    public GroundFrictions groundFrictions;
+    public LowSpeedConfig lowSpeedControl;
     void Awake(){
         
         if (Instance == null) Instance = this;
@@ -14,18 +18,18 @@ public class GameSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        CheckRespawn();
-    }
+    // void Update()
+    // {
+    //     CheckRespawn();
+    // }
 
-    private void CheckRespawn(){
-        if(InputManager.Instance.RespawnInput){
-            playerCar.Respawn(respawnPoint);
-        }
-    }
+    // private void CheckRespawn(){
+    //     // if(InputManager.Instance.RespawnInput){
+    //     //     playerCar.Respawn(respawnPoint);
+    //     // }
+    // }
 
-    public VehicleController GetPlayer()
+    public AxlePhysics GetPlayer()
     {
         return playerCar;
     }

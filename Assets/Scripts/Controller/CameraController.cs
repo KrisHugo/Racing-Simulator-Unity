@@ -23,7 +23,7 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         playerCamera = Camera.main;        
-        followingObjects = GameSystem.Instance.playerCar.transform;
+        // followingObjects = GameSystem.Instance.playerCar.transform;
     }
 
     // Update is called once per frame

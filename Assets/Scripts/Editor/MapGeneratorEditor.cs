@@ -17,7 +17,10 @@ public class MapGeneratorEditor : Editor
         if(GUILayout.Button("GenerateMap")){
             mapGen.DrawMapInEditor();
         }
-
+        if(GUILayout.Button("GenerteNoiseForTesting")){
+            //get 4 adjacent chunk mapdata, and check the edge height if is the same
+            mapGen.CreateNoisesForTesting();
+        }
         
     } 
 }

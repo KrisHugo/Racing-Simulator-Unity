@@ -9,6 +9,8 @@ public class MapDisplay : MonoBehaviour
     public MeshFilter meshFilter;
     public MeshRenderer meshRenderer;
 
+    public Terrain terrain;
+
     public void DrawTexture(Texture2D texture){
         textureRenderer.sharedMaterial.mainTexture = texture;
         textureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height);
@@ -18,7 +20,19 @@ public class MapDisplay : MonoBehaviour
     {
         meshFilter.sharedMesh = meshData.CreateMesh();
         
-        meshFilter.transform.localScale = Vector3.one * FindObjectOfType<MapGenerator>().terrainData.uniformScale;
+        meshFilter.transform.localScale = Vector3.one * FindObjectOfType<MapGenerator>().terrainConfig.uniformScale;
 
+    }
+
+    // using terrain component to build map instead of draw it by myself.
+    public void DrawTerrain(TerrainData terrainData, Material material)
+    {
+        terrain.terrainData = terrainData;
+        terrain.materialTemplate = material;
+        if (!terrain.TryGetComponent<TerrainCollider>(out var terrainCollider))
+        {
+            terrainCollider = terrain.gameObject.AddComponent<TerrainCollider>();
+        }
+        terrainCollider.terrainData = terrainData;
     }
 }

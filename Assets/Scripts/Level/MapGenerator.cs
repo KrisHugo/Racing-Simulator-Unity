@@ -5,10 +5,11 @@ using System.Collections.Generic;
 public class MapGenerator : MonoBehaviour
 {
 
-    public enum DrawMode { NoiseMap, Mesh, FalloffMap };
+    // terrain means using terrain system to make generate easy and a lot more easier for me to modify the terrain data without care about the vertices and triangles.
+    public enum DrawMode { NoiseMap, Mesh, FalloffMap, Terrain };
     public DrawMode drawMode;
 
-    public TerrainData terrainData;
+    public TerrainConfig terrainConfig;
     public NoiseData noiseData;
     public TextureData textureData;
     public Material terrainMaterial;
@@ -26,19 +27,20 @@ public class MapGenerator : MonoBehaviour
 
     public void Awake()
     {
-        
-        textureData.UpdateMeshHeight(terrainMaterial, terrainData.MinHeight, terrainData.MaxHeight);
+
+        textureData.UpdateMeshHeight(terrainMaterial, terrainConfig.MinHeight, terrainConfig.MaxHeight);
     }
 
     void OnValueUpdated()
     {
-        if(!Application.isPlaying)
+        if (!Application.isPlaying)
         {
             DrawMapInEditor();
         }
     }
 
-    void OnTextureValuesUpdated(){
+    void OnTextureValuesUpdated()
+    {
         textureData.ApplyToMaterial(terrainMaterial);
     }
 
@@ -47,13 +49,20 @@ public class MapGenerator : MonoBehaviour
     {
         get
         {
-            if (terrainData.useFlatShading)
+            if (drawMode == DrawMode.Terrain)
             {
-                return 95;
+                return 257;
             }
             else
             {
-                return 239;
+                if (terrainConfig.useFlatShading)
+                {
+                    return 95;
+                }
+                else
+                {
+                    return 239;
+                }
             }
         }
     }
@@ -70,13 +79,33 @@ public class MapGenerator : MonoBehaviour
         }
         else if (drawMode == DrawMode.Mesh)
         {
-            display.DrawMesh(MeshGenerator.GeneratorTerrainMesh(mapData.heightmap, terrainData.meshHeightMultiplier, terrainData.meshHeightCurve, editorPreviewLOD, terrainData.useFlatShading));
+            display.DrawMesh(MeshGenerator.GeneratorTerrainMesh(mapData.heightmap, terrainConfig.meshHeightMultiplier, terrainConfig.meshHeightCurve, editorPreviewLOD, terrainConfig.useFlatShading));
         }
         else if (drawMode == DrawMode.FalloffMap)
         {
             display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(MapChunkSize)));
         }
+        else if (drawMode == DrawMode.Terrain)
+        {
+            display.DrawTerrain(TerrainGenerator.GenerateTerrainData(mapData.heightmap, terrainConfig.meshHeightCurve, terrainConfig.uniformScale, terrainConfig.MaxHeight - terrainConfig.MinHeight), terrainMaterial);
+        }
     }
+
+    public void CreateNoisesForTesting(){
+        MapData[,] testDatas = new MapData[2,2];
+        for(int i = 0; i < 2; i++){
+            for(int j = 0; j < 2; j++){
+                print("i:" + i + " j:" + j);
+                Vector2 centre = new(i * MapChunkSize, j * MapChunkSize);
+                testDatas[i,j] = GenerateMapData(centre);
+            }
+        }
+        print(testDatas[0,0].heightmap[MapChunkSize - 1, MapChunkSize - 1]);
+        print(testDatas[0,1].heightmap[MapChunkSize - 1, 0]);
+        print(testDatas[1,0].heightmap[0, MapChunkSize - 1]);
+        print(testDatas[1,1].heightmap[0, 0]);
+    }
+
 
     public void RequestMapData(Vector2 centre, Action<MapData> callback)
     {
@@ -111,7 +140,7 @@ public class MapGenerator : MonoBehaviour
 
     void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
     {
-        MeshData meshData = MeshGenerator.GeneratorTerrainMesh(mapData.heightmap, terrainData.meshHeightMultiplier, terrainData.meshHeightCurve, lod, terrainData.useFlatShading);
+        MeshData meshData = MeshGenerator.GeneratorTerrainMesh(mapData.heightmap, terrainConfig.meshHeightMultiplier, terrainConfig.meshHeightCurve, lod, terrainConfig.useFlatShading);
 
         lock (meshDataThreadInfoQueue)
         {
@@ -142,14 +171,26 @@ public class MapGenerator : MonoBehaviour
 
     MapData GenerateMapData(Vector2 centre)
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(MapChunkSize + 2, MapChunkSize + 2, noiseData.seed, noiseData.noiseScale, noiseData.octaves, noiseData.persistence, noiseData.lacunarity, centre + noiseData.offset, noiseData.normalizeMode);   
-
-        if(terrainData.useFalloff){
-            falloffMap ??= FalloffGenerator.GenerateFalloffMap(MapChunkSize + 2);
-            for(int y = 0; y < MapChunkSize + 2; y++){
-                for(int x = 0; x < MapChunkSize + 2; x++){
-                    if(terrainData.useFalloff){
-                        noiseMap[x,y] = Mathf.Clamp01(noiseMap[x,y]-falloffMap[x,y]);
+        // print(centre);
+        // print(MapChunkSize);
+        float[,] noiseMap = Noise.GenerateNoiseMap(MapChunkSize, MapChunkSize, noiseData.seed, noiseData.noiseScale, noiseData.octaves, noiseData.persistence, noiseData.lacunarity, centre + noiseData.offset, noiseData.normalizeMode);
+        // print(centre.ToString() + "start:" + noiseMap[0, MapChunkSize + 1]);
+        // print(centre.ToString() + "end:" + noiseMap[MapChunkSize + 1, MapChunkSize + 1]);
+        if (terrainConfig.useFalloff)
+        {
+            falloffMap ??= FalloffGenerator.GenerateFalloffMap(MapChunkSize);
+            for (int y = 0; y < MapChunkSize; y++)
+            {
+                for (int x = 0; x < MapChunkSize; x++)
+                {
+                    if (terrainConfig.useFalloff)
+                    {
+                        if(drawMode == DrawMode.Terrain){
+                            noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] + falloffMap[x, y]);
+                        }
+                        else{
+                            noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - falloffMap[x, y]);
+                        }
                     }
                 }
             }
@@ -161,17 +202,19 @@ public class MapGenerator : MonoBehaviour
 
     void OnValidate()
     {
-        if(terrainData != null){
-            terrainData.OnValueUpdated -= OnValueUpdated;
-            terrainData.OnValueUpdated += OnValueUpdated;
+        if (terrainConfig != null)
+        {
+            terrainConfig.OnValueUpdated -= OnValueUpdated;
+            terrainConfig.OnValueUpdated += OnValueUpdated;
         }
         if (noiseData != null)
         {
             noiseData.OnValueUpdated -= OnValueUpdated;
             noiseData.OnValueUpdated += OnValueUpdated;
         }
-        if (textureData != null){
-            
+        if (textureData != null)
+        {
+
             textureData.OnValueUpdated -= OnTextureValuesUpdated;
             textureData.OnValueUpdated += OnTextureValuesUpdated;
         }
