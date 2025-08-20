@@ -1,5 +1,35 @@
 using UnityEngine;
+
+
 // 存储每个车轮的打滑状态
+
+[System.Serializable]
+public class WheelSlipData
+{
+    public float slipRatio;      // 纵向打滑率
+    public float slipAngle;      // 侧偏角(弧度)
+    public float normalizedSlip; // 综合打滑率(0-1)
+
+
+    // 计算滑移率
+    public float CalculateSlipRatio(Transform car, Vector3 wheelVelocity, float tireCircumVelocity)
+    {
+        // 接地线速度（世界坐标系转车轮局部坐标系）
+        Vector3 localVelocity = car.InverseTransformDirection(wheelVelocity);
+        float groundSpeed = localVelocity.z;  // Z轴为车轮前进方向
+
+        // 避免除零错误
+        if (Mathf.Approximately(groundSpeed, 0f) && Mathf.Approximately(tireCircumVelocity, 0f))
+            return 0f;
+
+        // 滑移率公式
+        return Mathf.Clamp01(Mathf.Abs(tireCircumVelocity - groundSpeed) /
+                             Mathf.Max(Mathf.Abs(tireCircumVelocity), Mathf.Abs(groundSpeed)));
+    }
+
+
+}
+
 [System.Serializable]
 public class Wheel
 {

@@ -8,14 +8,14 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - Post Processing
   - Water
   - UI
-  - Drivable
-  - 
-  - 
-  - 
-  - 
+  - Vehicles
+  - Vehicle Wheels
+  - Ground Surfaces
+  - Buildings
+  - Obstacles
   - 
   - 
   - 

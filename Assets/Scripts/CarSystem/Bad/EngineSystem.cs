@@ -4,45 +4,7 @@ using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 
-[System.Serializable]
-public class EngineFeature
-{
-    public float idleRPM = 800f;
-    public float redlineRPM = 6500f;
-    public float maxRPM = 7000f;
-    public float maxTorque = 350f; // Nm
-    public float inertia = 0.3f; // kg·m²
-    public AnimationCurve torqueCurve = new(
-        new Keyframe(0, 0.2f),    // 低转速扭矩
-        new Keyframe(0.3f, 0.9f),  // 提高爬坡能力
-        new Keyframe(0.6f, 1.0f),  // 峰值扭矩
-        new Keyframe(0.85f, 0.8f), // 高转区保持
-        new Keyframe(1.0f, 0.5f),   // 红区下降
-        new Keyframe(1.1f, 0f)
-    );
-
-    // 根据扭矩曲线获取扭矩系数
-    public float GetRPMFactor(float currentRPM)
-    {
-        return (currentRPM - idleRPM) / maxRPM - idleRPM;
-    }
-
-    public float GetRPMClamp(float currentRPM)
-    {
-        return Mathf.Clamp(currentRPM, idleRPM * 0.5f, maxRPM);
-    }
-
-    public float GetInverseLerpRPM(float currentRPM){
-        return Mathf.InverseLerp(idleRPM, maxRPM, currentRPM);
-    }
-
-    public float GetTorqueAtRPM(float currentRPM)
-    {
-        return maxTorque * torqueCurve.Evaluate(currentRPM / redlineRPM);
-    }
-}
-
-public class EngineSystem : MonoBehaviour
+public class OldEngineSystem : MonoBehaviour
 {
     // 新增字段
     public float CurrentRPM { get; private set; } // 当前转速（RPM）;

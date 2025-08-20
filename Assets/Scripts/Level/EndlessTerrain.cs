@@ -23,7 +23,7 @@ public class EndlessTerain : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mapGenerator = FindObjectOfType<MapGenerator>();
+        mapGenerator = GetComponent<MapGenerator>();
 
         maxViewDst = detailLevels[^1].visibleDstThreshold;
         // if(mapGenerator.drawMode == MapGenerator.DrawMode.Terrain){

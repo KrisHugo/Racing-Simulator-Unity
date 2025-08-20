@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6d8a9b8156c224cb6d4f9d9b1452be, type: 3}
   m_Name: BasicCarLowSpeedConfig
   m_EditorClassIdentifier: 
-  lowSpeedThreshold: 0.08
-  stopDamping: 50
+  lowSpeedThreshold: 1
+  stopDamping: 80
   minAngularVelocity: 0.1

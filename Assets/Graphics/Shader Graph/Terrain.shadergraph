@@ -3630,7 +3630,7 @@
     "m_ObjectId": "9032ea8d2cad4dc8a226ed203f6fdadb",
     "m_Title": "Cliff Part",
     "m_Position": {
-        "x": -435.0000305175781,
+        "x": -434.9998779296875,
         "y": 902.0001220703125
     }
 }
@@ -5104,8 +5104,8 @@
     "m_ObjectId": "d3bad919d6ee43f8b62734b46eadf77a",
     "m_Title": "WaterPart",
     "m_Position": {
-        "x": 1396.999755859375,
-        "y": 26.0
+        "x": 1397.0,
+        "y": 25.99994659423828
     }
 }
 

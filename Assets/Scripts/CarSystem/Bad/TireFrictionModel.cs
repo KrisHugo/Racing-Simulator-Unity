@@ -24,7 +24,7 @@ public class TireFrictionModel
         float verticalLoad = Mathf.Max(hit.force, 100f);
         
         // 计算滑移率
-        Vector3 localVel = transform.InverseTransformDirection(rb.velocity);
+        Vector3 localVel = transform.InverseTransformDirection(rb.linearVelocity);
         float wheelSpeed = wheel.rpm * 2 * Mathf.PI * wheel.radius / 60;
         float denominator = Mathf.Max(Mathf.Abs(localVel.z), 0.1f);
         float slipRatio = Mathf.Abs(wheelSpeed - Mathf.Abs(localVel.z)) / denominator;

@@ -64,7 +64,7 @@ public class TransmissionSystem : MonoBehaviour
         }
     }
 
-    private EngineSystem engine;
+    private OldEngineSystem engine;
     private DriveTrain drivetrain; 
     // private DifferentialSystem differentialSystem;
     // private WheelController wheelController;
@@ -74,7 +74,7 @@ public class TransmissionSystem : MonoBehaviour
     private float testWheelTorque;
     public void Initialize()
     {
-        engine = GetComponent<EngineSystem>();
+        engine = GetComponent<OldEngineSystem>();
         drivetrain = GetComponent<DriveTrain>();
     }
     public void HandleGearShifting(float deltaTime)

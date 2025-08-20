@@ -18,16 +18,16 @@ public class GameSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    // void Update()
-    // {
-    //     CheckRespawn();
-    // }
+    void Update()
+    {
+        CheckRespawn();
+    }
 
-    // private void CheckRespawn(){
-    //     // if(InputManager.Instance.RespawnInput){
-    //     //     playerCar.Respawn(respawnPoint);
-    //     // }
-    // }
+    private void CheckRespawn(){
+        if(InputManager.Instance.RespawnInput){
+            playerCar.Respawn(respawnPoint);
+        }
+    }
 
     public AxlePhysics GetPlayer()
     {

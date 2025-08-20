@@ -4,7 +4,7 @@ using UnityEngine;
 public class VehicleController : MonoBehaviour
 {
     [Header("Core Components")]
-    public EngineSystem engineSystem;
+    public OldEngineSystem engineSystem;
     public TransmissionSystem transmission;
     public SteeringSystem steeringSystem;
     public BrakingSystem brakingSystem;
@@ -41,7 +41,7 @@ public class VehicleController : MonoBehaviour
         rb.mass = mass;
         rb.centerOfMass = centerOfMass;
 
-        engineSystem = GetComponent<EngineSystem>();
+        engineSystem = GetComponent<OldEngineSystem>();
         engineSystem.Initialize();
         transmission = GetComponent<TransmissionSystem>();
         transmission.Initialize();
@@ -145,18 +145,18 @@ public class VehicleController : MonoBehaviour
         respawnTimer = respawnDelay;
 
         // reset all movement;
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         transform.SetPositionAndRotation(respawnPoint.position, respawnPoint.rotation);
     }
 
     public float GetSpeedKMH()
     {
-        return rb.velocity.magnitude * 3.6f;
+        return rb.linearVelocity.magnitude * 3.6f;
     }
     // 轮胎力应用（牵引力+转向力）
     void ApplyDragForces()
     {
-        Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        Vector3 localVelocity = transform.InverseTransformDirection(rb.linearVelocity);
         
         // 空气阻力（速度平方关系）
         float dragForce = localVelocity.z * Mathf.Abs(localVelocity.z) * 0.3f;

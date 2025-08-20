@@ -24,13 +24,13 @@ public class UserInterface : MonoBehaviour
 
     private void Update()
     {
-        UpdateGearDisplay();
+        UpdateRPMDisplay();
         UpdateVelocityDisplay();
     }
 
     private void UpdateVelocityDisplay()
     {
-        string displayText = $"{carStatus.GetVehicleKMH():F8}";
+        string displayText = $"{(int)carStatus.GetVehicleKMH()}\n{(int)carStatus.GetEngineRPM()}";
         
         velocityText.text = displayText;
         // velocityText.color = (carStatus.transmission.CurrentGearState == GearState.Reverse) ? 
@@ -38,9 +38,11 @@ public class UserInterface : MonoBehaviour
         //     driveColor;
     }
 
-    private void UpdateGearDisplay()
+    private void UpdateRPMDisplay()
     {
-        // string displayText;
+        string displayText = $"{(int)carStatus.GetAvgWheelRPM()}";
+
+
         // if(playerCar.transmission.IsShifting){
         //     displayText = "N";
         // }
@@ -55,7 +57,7 @@ public class UserInterface : MonoBehaviour
         //     };
         // }
 
-        // gearText.text = displayText;
+        gearText.text = displayText;
         // gearText.color = (playerCar.transmission.CurrentGearState == GearState.Reverse) ? 
         //     reverseColor : 
         //     driveColor;
