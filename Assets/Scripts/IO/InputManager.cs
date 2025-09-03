@@ -1,77 +1,156 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+
 
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
 
-    [SerializeField] public bool StartUpInput{get; private set;}
+    [SerializeField] private InputSettings defaultInputConfig;
+    public InputSettings currentInputConfig;
 
-    [SerializeField] private InputSettings inputSettings;
-    [SerializeField] public bool RespawnInput {get; private set;}
-    // µ±Ç°ÊäÈëÖµ
-    [SerializeField] public float ThrottleInput { get; private set; }
-    [SerializeField] public float SteerInput { get; private set; }
-    [SerializeField] public float BrakeInput { get; private set; }
+
+    // å½“å‰è¾“å…¥å€¼çš„ç¼“å­˜
+    public float SteeringInput { get; private set; }
+    public float ThrottleInput { get; private set; }
+    public float BrakeInput { get; private set; }
+
+    [SerializeField] public bool StartUpInput { get; private set; }
+
+    // [SerializeField] private InputSettings inputSettings;
+    [SerializeField] public bool RespawnInput { get; private set; }
+    // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Öµ
+    // [SerializeField] public float ThrottleInput { get; private set; }
+    // [SerializeField] public float SteerInput { get; private set; }
+    // [SerializeField] public float BrakeInput { get; private set; }
     [SerializeField] public bool HandbrakeInput { get; private set; }
 
 
-    // ĞÂÔöµµÎ»ÊäÈëÊôĞÔ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     [SerializeField] public bool ShiftUpPressed { get; private set; }
     [SerializeField] public bool ShiftDownPressed { get; private set; }
     [SerializeField] public bool ReversePressed { get; private set; }
 
-    [SerializeField] public float ViewVerticalInput {get; private set; }
-    [SerializeField] public float ViewHorizontalInput {get; private set; }
+    [SerializeField] public float ViewVerticalInput { get; private set; }
+    [SerializeField] public float ViewHorizontalInput { get; private set; }
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Initialize(defaultInputConfig);
+
+        // æ·»åŠ è®¾å¤‡å˜æ›´ç›‘å¬å™¨
+        InputSystem.onDeviceChange += OnDeviceChange;
     }
+    private void OnDestroy()
+    {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+    }
+
 
     private void Update()
     {
-        //×îÓÅÏÈ
-        RespawnInput = Input.GetKey(inputSettings.respawnKey);
-
-        StartUpInput = Input.GetKey(inputSettings.startUpKey);
-
-        // ¼üÅÌÊäÈë
-        float keyboardThrottle = Input.GetKey(inputSettings.accelerateKey) ? 1 : 0;
-        
-
-        float keyboardBrake = Input.GetKey(inputSettings.brakeKey) ? 1 : 0;
-        float keyboardSteer =
-            (Input.GetKey(inputSettings.leftKey) ? -1 : 0) +
-            (Input.GetKey(inputSettings.rightKey) ? 1 : 0);
-
-        // ÓÎÏ·ÊÖ±úÊäÈë
-        float gamepadThrottle = Mathf.Clamp01(Input.GetAxis(inputSettings.throttleAxis));
-        float gamepadBrake = Mathf.Clamp01(-Input.GetAxis(inputSettings.throttleAxis));
-        float gamepadSteer = Input.GetAxis(inputSettings.steerAxis);
-        
-
-        // ¼ì²âµµÎ»ÊäÈë
-        ShiftUpPressed = Input.GetKeyDown(inputSettings.shiftUpKey);
-        ShiftDownPressed = Input.GetKeyDown(inputSettings.shiftDownKey);
-        ReversePressed = Input.GetKeyDown(inputSettings.reverseKey);
+        if (currentInputConfig == null) return;
 
 
-        // Êó±ê×ªÏò£¨¿ÉÑ¡£©
-        float mouseSteer = Input.GetAxis("Mouse X") * inputSettings.mouseSteeringSensitivity;
 
-        // ÊäÈë»ìºÏ
-        ThrottleInput = Mathf.Clamp01(keyboardThrottle + gamepadThrottle);
-        BrakeInput = Mathf.Clamp01(keyboardBrake + gamepadBrake);
-        SteerInput = Mathf.Clamp(keyboardSteer + gamepadSteer, -1, 1);
+        // æ›´æ–°è¾“å…¥çŠ¶æ€
+        StartUpInput = currentInputConfig.IsEngineStartPressed();
+        RespawnInput = currentInputConfig.IsRepawnPressed();
+        SteeringInput = currentInputConfig.GetSteeringInput();
+        ThrottleInput = currentInputConfig.GetThrottleInput();
+        BrakeInput = currentInputConfig.GetBrakeInput();
+        HandbrakeInput = currentInputConfig.IsHandbrakePressed();
+        ShiftUpPressed = currentInputConfig.IsShiftUpPressed();
+        ShiftDownPressed = currentInputConfig.IsShiftDownPressed();
 
-        ViewHorizontalInput = Mathf.Clamp(mouseSteer, -1, 1);
-
-        HandbrakeInput = Input.GetKey(inputSettings.handbrakeKey) ||
-                        Input.GetKey(inputSettings.gamepadBrake);
-
-
-        // Debug.Log($"Steer: {SteerInput}, Throttle: {ThrottleInput}, Brake: {BrakeInput}");
+        ViewHorizontalInput = currentInputConfig.GetViewHorizontalInput();
     }
+
+
+    // åˆå§‹åŒ–è¾“å…¥é…ç½®
+    public void Initialize(InputSettings config)
+    {
+        currentInputConfig = Instantiate(config);
+    }
+    
+        
+    // å“åº”è®¾å¤‡å˜æ›´
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (device is Gamepad)
+        {
+            switch (change)
+            {
+                case InputDeviceChange.Added:
+                    Debug.Log("Gamepad connected");
+                    break;
+                case InputDeviceChange.Removed:
+                    Debug.Log("Gamepad disconnected");
+                    break;
+                case InputDeviceChange.Reconnected:
+                    Debug.Log("Gamepad reconnected");
+                    break;
+            }
+        }
+    }
+    
+    // ä½¿ç”¨å½“å‰é…ç½®æ¨¡æ‹Ÿè¾“å…¥
+    public void SetActiveConfig(InputSettings newConfig)
+    {
+        currentInputConfig = Instantiate(newConfig);
+    }
+
+    // private void Update()
+    // {
+    //     //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //     // RespawnInput = Input.GetKey(currentInputConfig.respawnKey);
+
+    //     // StartUpInput = Input.GetKey(currentInputConfig.startUpKey);
+
+    //     // // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //     // float keyboardThrottle = Input.GetKey(currentInputConfig.accelerateKey) ? 1 : 0;
+
+
+    //     // float keyboardBrake = Input.GetKey(currentInputConfig.brakeKey) ? 1 : 0;
+    //     // float keyboardSteer =
+    //     //     (Input.GetKey(currentInputConfig.leftKey) ? -1 : 0) +
+    //     //     (Input.GetKey(currentInputConfig.rightKey) ? 1 : 0);
+
+    //     // // ï¿½ï¿½Ï·ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½
+    //     // float gamepadThrottle = Mathf.Clamp01(currentInputConfig.throttleAxis);
+    //     // float gamepadBrake = Mathf.Clamp01(-Input.GetAxis(currentInputConfig.throttleAxis));
+    //     // float gamepadSteer = Input.GetAxis(inputSettings.steerAxis);
+
+
+    //     // ï¿½ï¿½âµµÎ»ï¿½ï¿½ï¿½ï¿½
+    //     // ShiftUpPressed = Input.GetKeyDown(currentInputConfig.shiftUpKey);
+    //     // ShiftDownPressed = Input.GetKeyDown(currentInputConfig.shiftDownKey);
+    //     // ReversePressed = Input.GetKeyDown(currentInputConfig.reverseKey);
+
+
+    //     // ï¿½ï¿½ï¿½×ªï¿½ò£¨¿ï¿½Ñ¡ï¿½ï¿½
+
+    //     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //     // ThrottleInput = Mathf.Clamp01(keyboardThrottle + gamepadThrottle);
+    //     // BrakeInput = Mathf.Clamp01(keyboardBrake + gamepadBrake);
+    //     // SteerInput = Mathf.Clamp(keyboardSteer + gamepadSteer, -1, 1);
+
+
+    //     // HandbrakeInput = Input.GetKey(currentInputConfig.handbrakeKey);
+
+
+    //     // Debug.Log($"Steer: {SteerInput}, Throttle: {ThrottleInput}, Brake: {BrakeInput}");
+    // }
 }
